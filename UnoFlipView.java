@@ -1,2 +1,27 @@
+/**
+ * UnoFlipView Interface
+ * Defines the contract for views that observe the UnoFlipModel
+ *
+ * @author Eshal Kashif
+ * @version 2.0
+ *
+ */
+
 public interface UnoFlipView {
+
+    /**
+     * Called when the model changes state
+     * Views should update their display to reflect current game state
+     */
+    void update();
+
+    /**
+     * Called when the model wants to display a message
+     */
+    void displayMessage(String message);
+
+    /**
+     * Called when the model wants to display an error
+     */
+    void displayError(String message);
 }
