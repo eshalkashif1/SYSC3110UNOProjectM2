@@ -161,7 +161,6 @@ public class UnoFlipModel {
 
         // Handle special cards
         handleSpecialCard(cardToPlay);
-        advanceToNextPlayer();
         notifyViews();
         return true;
     }
@@ -178,7 +177,6 @@ public class UnoFlipModel {
         cur.addCard(drawnCard);
 
         pendingAdvanceSteps = 1;
-        advanceToNextPlayer();
         notifyViews();
     }
 
@@ -285,7 +283,7 @@ public class UnoFlipModel {
         return ((currentTurn + steps * direction) % n + n) % n;
     }
 
-    private void advanceToNextPlayer() {
+    public void advanceToNextPlayer() {
         if (gameOver)
             return;
         advanceTurn(pendingAdvanceSteps);
