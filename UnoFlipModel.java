@@ -285,7 +285,7 @@ public class UnoFlipModel {
         return ((currentTurn + steps * direction) % n + n) % n;
     }
 
-    public void advanceToNextPlayer() {
+    private void advanceToNextPlayer() {
         if (gameOver)
             return;
         advanceTurn(pendingAdvanceSteps);
