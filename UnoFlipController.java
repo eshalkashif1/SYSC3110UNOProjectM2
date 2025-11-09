@@ -195,6 +195,8 @@ public class UnoFlipController {
             return;
         }
 
+        model.advanceToNextPlayer();
+
         // new player's turn starts, so they haven't taken an action yet
         actionTakenThisTurn = false;
 
