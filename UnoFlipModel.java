@@ -5,6 +5,9 @@ import java.util.*;
  * Game logic -> Model
  * UI -> View
  * Input handling -> controller
+ *
+ * @author Emma Wong
+ * @version 2.0
  */
 
 // NOTE TO IMPLEMENT:
@@ -22,6 +25,9 @@ public class UnoFlipModel {
     private boolean gameOver;
     private Player winner;
 
+    // pending steps to advance when "Next Player" is pressed
+    private int pendingAdvanceSteps;
+
     // List of views to notify
     private List<UnoFlipView> views;
 
@@ -37,6 +43,8 @@ public class UnoFlipModel {
         this.gameOver = false;
         this.winner = null;
         this.views = new ArrayList<>();
+        this.pendingAdvanceSteps = 1;
+
     }
 
     /**
@@ -60,7 +68,7 @@ public class UnoFlipModel {
      */
     private void notifyViews(){
         for(UnoFlipView view : this.views){
-            //view.update();
+            view.update();
         }
     }
 
@@ -69,6 +77,8 @@ public class UnoFlipModel {
      * @param playerNames
      */
     public void initializeGame(List<String> playerNames){
+
+        players.clear(); // clear any previous players
 
         // Add players
         for (String name: playerNames){
@@ -94,6 +104,7 @@ public class UnoFlipModel {
         forcedColour = null;
         gameOver = false;
         winner = null;
+        pendingAdvanceSteps = 1;
 
         notifyViews();
     }
@@ -162,7 +173,8 @@ public class UnoFlipModel {
         Card drawnCard = deck.drawCard();
         cur.addCard(drawnCard);
 
-        advanceTurn(1);
+        //advanceTurn(1);
+        pendingAdvanceSteps = 1;
         notifyViews();
     }
 
@@ -195,17 +207,21 @@ public class UnoFlipModel {
     private void handleSpecialCard(Card card){
         Card.cardtype type = card.getType();
 
+        pendingAdvanceSteps = 1;
         switch (type){
             case SKIP:
-                advanceTurn(2); // Skip next player
+                pendingAdvanceSteps  =2;
+                //advanceTurn(2); // Skip next player
                 break;
 
             case REVERSE:
                 if (players.size() == 2) {
-                    advanceTurn(2); // In 2 player, acts like SKIP
+                    pendingAdvanceSteps = 2;
+                    //advanceTurn(2); // In 2 player, acts like SKIP
                 } else {
                     direction = -direction; // Reverse direction
-                    advanceTurn(1);
+                    //advanceTurn(1);
+                    pendingAdvanceSteps = 1;
                 }
                 break;
 
@@ -214,7 +230,8 @@ public class UnoFlipModel {
                 Player nextPlayer1 = players.get(victim1);
                 Card drawnCard = deck.drawCard();
                 nextPlayer1.addCard(drawnCard);
-                advanceTurn(2); // Skip the player who drew
+                pendingAdvanceSteps=1;
+                //advanceTurn(2); // Skip the player who drew
                 break;
 
             case WILDTWO:
@@ -222,11 +239,12 @@ public class UnoFlipModel {
                 Player nextPlayer2 = players.get(victim2);
                 nextPlayer2.addCard(deck.drawCard());
                 nextPlayer2.addCard(deck.drawCard());
-                advanceTurn(2); // Skip the player who drew
+                pendingAdvanceSteps=1;
+                //advanceTurn(2); // Skip the player who drew
                 break;
 
             default:
-                advanceTurn(1); // Regular card, normal turn advance
+                //advanceTurn(1); // Regular card, normal turn advance
                 break;
         }
     }
@@ -270,6 +288,12 @@ public class UnoFlipModel {
         return ((currentTurn + steps * direction) % n + n) % n;
     }
 
+    public void advanceToNextPlayer() {
+        if (gameOver) return;
+        advanceTurn(pendingAdvanceSteps);
+        pendingAdvanceSteps = 1;
+        notifyViews();
+    }
 
     // Getters for view access
     public Player getCurrentPlayer() {
