@@ -44,7 +44,6 @@ public class UnoFlipModel {
         this.winner = null;
         this.views = new ArrayList<>();
         this.pendingAdvanceSteps = 1;
-
     }
 
     /**
@@ -74,7 +73,7 @@ public class UnoFlipModel {
 
     /**
      * Initializes the game with players
-     * @param playerNames
+     * @param playerNames names of the players
      */
     public void initializeGame(List<String> playerNames){
 
@@ -143,21 +142,26 @@ public class UnoFlipModel {
             forcedColour = null;
         }
 
-        // Update score
-        int gained = calculatePoints(cardToPlay);
-        cur.increaseScore(gained);
-
         // Check for win condition
         if (cur.getHand().isEmpty()) {
             gameOver = true;
             winner = cur;
+            handleSpecialCard(cardToPlay);
+            int x = players.indexOf(getCurrentPlayer());
+            for(Player p: players){
+                if(players.indexOf(p) != x){
+                    for(Card c: p.getHand()){
+                        cur.increaseScore(calculatePoints(c));
+                    }
+                }
+            }
             notifyViews();
             return true;
         }
 
         // Handle special cards
         handleSpecialCard(cardToPlay);
-
+        advanceToNextPlayer();
         notifyViews();
         return true;
     }
@@ -173,8 +177,8 @@ public class UnoFlipModel {
         Card drawnCard = deck.drawCard();
         cur.addCard(drawnCard);
 
-        //advanceTurn(1);
         pendingAdvanceSteps = 1;
+        advanceToNextPlayer();
         notifyViews();
     }
 
@@ -214,10 +218,11 @@ public class UnoFlipModel {
                 break;
 
             case REVERSE:
-                direction = -direction;
+                // Reverse direction
                 if (players.size() == 2) {
-                    pendingAdvanceSteps = 2;
+                    pendingAdvanceSteps = 0;
                 }
+                direction = -direction;
                 break;
 
             case DRAW_ONE:
@@ -225,7 +230,7 @@ public class UnoFlipModel {
                 Player nextPlayer1 = players.get(victim1);
                 Card drawnCard = deck.drawCard();
                 nextPlayer1.addCard(drawnCard);
-                pendingAdvanceSteps=2;
+                pendingAdvanceSteps = 2;
                 break;
 
             case WILDTWO:
@@ -233,14 +238,12 @@ public class UnoFlipModel {
                 Player nextPlayer2 = players.get(victim2);
                 nextPlayer2.addCard(deck.drawCard());
                 nextPlayer2.addCard(deck.drawCard());
-                pendingAdvanceSteps=2;
+                pendingAdvanceSteps = 2;
                 break;
 
             default:
-                //advanceTurn(1); // Regular card, normal turn advance
                 break;
         }
-        advanceToNextPlayer();
     }
 
     /**
@@ -283,7 +286,8 @@ public class UnoFlipModel {
     }
 
     public void advanceToNextPlayer() {
-        if (gameOver) return;
+        if (gameOver)
+            return;
         advanceTurn(pendingAdvanceSteps);
         pendingAdvanceSteps = 1;
         notifyViews();
@@ -321,5 +325,4 @@ public class UnoFlipModel {
     public int getDirection() {
         return direction;
     }
-
 }
