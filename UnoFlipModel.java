@@ -210,18 +210,13 @@ public class UnoFlipModel {
         pendingAdvanceSteps = 1;
         switch (type){
             case SKIP:
-                pendingAdvanceSteps  =2;
-                //advanceTurn(2); // Skip next player
+                pendingAdvanceSteps = 2;
                 break;
 
             case REVERSE:
+                direction = -direction;
                 if (players.size() == 2) {
                     pendingAdvanceSteps = 2;
-                    //advanceTurn(2); // In 2 player, acts like SKIP
-                } else {
-                    direction = -direction; // Reverse direction
-                    //advanceTurn(1);
-                    pendingAdvanceSteps = 1;
                 }
                 break;
 
@@ -230,8 +225,7 @@ public class UnoFlipModel {
                 Player nextPlayer1 = players.get(victim1);
                 Card drawnCard = deck.drawCard();
                 nextPlayer1.addCard(drawnCard);
-                pendingAdvanceSteps=1;
-                //advanceTurn(2); // Skip the player who drew
+                pendingAdvanceSteps=2;
                 break;
 
             case WILDTWO:
@@ -239,14 +233,14 @@ public class UnoFlipModel {
                 Player nextPlayer2 = players.get(victim2);
                 nextPlayer2.addCard(deck.drawCard());
                 nextPlayer2.addCard(deck.drawCard());
-                pendingAdvanceSteps=1;
-                //advanceTurn(2); // Skip the player who drew
+                pendingAdvanceSteps=2;
                 break;
 
             default:
                 //advanceTurn(1); // Regular card, normal turn advance
                 break;
         }
+        advanceToNextPlayer();
     }
 
     /**
