@@ -232,7 +232,8 @@ public class UnoFlipFrame extends JFrame implements UnoFlipView {
      */
     public boolean promptNextRound(Player roundWinner) {
         String message = roundWinner.getName() + " won this round!\n"
-                + "Current Score: " + roundWinner.getScore() + "\n\n"
+                + "Points this round: " + model.getLastRoundPoints() + "\n"
+                + "Total score: " + roundWinner.getScore() + "\n\n"
                 + "Continue to the next round?";
         int choice = JOptionPane.showConfirmDialog(
                 this,

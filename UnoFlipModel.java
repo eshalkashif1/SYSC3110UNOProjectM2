@@ -29,6 +29,7 @@ public class UnoFlipModel {
     private boolean roundOver;         // is the current round finished?
     private Player roundWinner;        // winner of the round (not whole game)
     private static final int TARGET_SCORE = 500;
+    private int lastRoundPoints;
 
 
     // List of views to notify
@@ -49,6 +50,7 @@ public class UnoFlipModel {
         this.pendingAdvanceSteps = 1;
         this.roundOver = false;
         this.roundWinner = null;
+        this.lastRoundPoints = 0;
     }
 
     /**
@@ -92,6 +94,15 @@ public class UnoFlipModel {
         return roundWinner;
     }
 
+    /**
+     * Get round points
+     * @return the number of points won in a round
+     */
+    public int getLastRoundPoints() {
+        return lastRoundPoints;
+    }
+
+
 
     /**
      * Initializes a new game with specified players.
@@ -129,6 +140,7 @@ public class UnoFlipModel {
 
         roundOver = false;
         roundWinner = null;
+        lastRoundPoints = 0;
 
         notifyViews();
     }
@@ -221,6 +233,7 @@ public class UnoFlipModel {
             // Mark round over
             roundOver = true;
             roundWinner = cur;
+            lastRoundPoints = roundPoints;
 
             // Check match end (500+ points)
             if (cur.getScore() >= TARGET_SCORE) {

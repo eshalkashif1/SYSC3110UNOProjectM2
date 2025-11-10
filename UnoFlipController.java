@@ -52,7 +52,7 @@ public class UnoFlipController {
      * Enable/disable all card buttons in the hand
      * @param enabled True if the buttons should be enabled, false if they should be disabled
      */
-    private void setHandButtonsEnabled(boolean enabled) {     // *** NEW
+    private void setHandButtonsEnabled(boolean enabled) {
         JPanel handPanel = view.getPlayerHandPanel();
         Component[] components = handPanel.getComponents();
 
@@ -169,9 +169,9 @@ public class UnoFlipController {
 
         // don't allow drawing more than once per turn,
         // or drawing after already playing.
-        if (actionTakenThisTurn) {                                // *** NEW
-            view.displayError("You can only draw once, and only if you haven't played."); // *** NEW
-            return;                                               // *** NEW
+        if (actionTakenThisTurn) {
+            view.displayError("You can only draw once, and only if you haven't played.");
+            return;
         }
 
         Player currentPlayer = model.getCurrentPlayer();
@@ -208,7 +208,7 @@ public class UnoFlipController {
         }
         //  prevent skipping your turn by pressing Next Player immediately
         if (!actionTakenThisTurn) {
-            view.displayError("You must play a card or draw before ending your turn."); // *** NEW
+            view.displayError("You must play a card or draw before ending your turn.");
             return;
         }
 
