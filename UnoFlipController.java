@@ -133,16 +133,25 @@ public class UnoFlipController {
             } else {
                 view.displayMessage(currentPlayer.getName() + " played " + cardToPlay.getDescription());
             }
+
+            // *** ONLY on success should this turn be considered "used"
+            actionTakenThisTurn = true;
+            setHandButtonsEnabled(false);
+            view.getDrawCardButton().setEnabled(false);
+            view.getNextPlayerButton().setEnabled(true);
+
         } else {
+            // On invalid move: show error and keep the turn active
             view.displayError("Invalid move. Please try a different card.");
+
+            // Player should still be allowed to choose another card or draw:
+            actionTakenThisTurn = false;
+            setHandButtonsEnabled(true);
+            view.getDrawCardButton().setEnabled(true);
+            view.getNextPlayerButton().setEnabled(false);
         }
 
-        // normal turn state after a regular play (no round end)
-        actionTakenThisTurn = true;
-        setHandButtonsEnabled(false);
-        view.getDrawCardButton().setEnabled(false);
-        view.getNextPlayerButton().setEnabled(true);
-
+        // Update card listeners for new hand
         setupCardListeners();
     }
 
