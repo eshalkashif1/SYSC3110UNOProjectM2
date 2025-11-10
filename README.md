@@ -1,39 +1,51 @@
-# SYSC3110UNOProject - Milestone 1
+# SYSC3110UNOProject - Milestone 2
 
 ## Deliverables 
-This milestone implements the core functionality of the UNO Flip game in Java using object-oriented design.  
-The program allows 2–4 players to play a text-based version of UNO Flip that enforces valid moves, action cards, and scoring.
+This milestone introduces the Graphical User Interface (GUI) and MVC architecture for the UNO Flip game, transitioning from a text-based version (milestone 1) to an interactive windowed application using Java Swing. 
+The game now supports full mouse-based interaction, visual card displays, and improved modularity through Model-View-Controller separation.
 
 Key features implemented:
-- Player setup and input validation (2–4 players)
-- Deck creation and shuffling (includes number, action, and wild cards)
-- Turn management and direction control (clockwise/counter-clockwise)
-- Handling of action cards: SKIP, REVERSE, DRAW ONE, WILD, WILD DRAW TWO
-- Card placement validation based on color, number, or action type
-- Scoring system awarding points for each card played
-- Display of the resultant state after each turn (top discard + next player’s hand)
+- Graphical interface within a JFrame (card layout, buttons, and player hand panels)
+- Player setup and range selection (2-4 players)
+- Visualization of player hands, draw pile, and top card of the discard pile
+- Action buttons to play a card, draw a card, next player, and select colour for wild cards
+- MVC pattern implementation to ensure loose coupling and high cohesion
+- Integration of the Java Event Model to update the View when the Model state changes
+- Unit tests for the Model using JUnit
+- Updated UML class and sequence diagrams showing MVC communication
 
 ## Team Member Contributions
-- Eshal Kashif: Developed `Player.java` — handled player attributes, hand management, scoring updates, and full class documentation. Implemented methods for test classes PlayerTest.java and DeckTest.java with full documentation. Illustrated the UML diagram to show representation between main classes. 
-- Emma Wong: Created `Deck.java` — implemented card generation, shuffling, draw/discard piles, and reshuffle mechanics. Implemented test class UnoFlipTest.java. Illustrated the all sequence diagrams to represent events.
-- Anita Gaffuri Kasbiy: Implemented `UnoFlip.java` — managed main game flow, turn logic, input handling, scoring system, and resultant-state output after each turn.
-- Matthew Sanii: Implemented `Card.java` — designed card structure, enums for color and type, and description formatting for display.
-
+- Eshal Kashif: Developed "UnoFlipFrame.java", "UnoFlipView", and "UnoFlipController.java" 
+- Emma Wong: Developed "UnoFlipModel.java" and README.
+- Anita Gaffuri Kasbiy: Created the UML diagram and sequence diagrams.
+- Matthew Sanii: Developed "UnoFlipModelTest.java"
+  
 ## Class Descriptions & Explanations
 
+### UnoFlipModel.java
+- Responsibility: manages core game logic including player turns, deck statem action card effects, and scoring.
+- Implements the Model in MVC; notifies registered Views of changes through the Observer pattern
+
+### UnoFlipView.java
+- Responsibility: provides the graphical representation of the game state. Displays cards, player names, and action buttons inside a JFrame.
+- Implements the View component of MVC, updating automatically when the Model changes.
+
+### UnoFlipController.java
+- Responsibility: handles user input from the GUI (mouse clicks/button presses) and updates the Model accordingly.
+- Implements the Controller component of MVC, ensuring proper communication between Model and View
+
 ### Card.java
-- Responsibility. Represent a single card’s immutable attributes: color, type, rank; provide a human-readable description used by the console UI.
+- Responsibility: represent a single card’s immutable attributes: color, type, rank; provide a human-readable description used by the console UI.
 - Uses enums (colortype and cardtype) to represent card attributes effectively
 
 ### Deck.java
-- Responsibility. Build and manage the draw pile and the discard pile (the discard and draw pile make up the deck, hence why they are in the same class), shuffle, draw, and expose the current top discard.
+- Responsibility: build and manage the draw pile and the discard pile (the discard and draw pile make up the deck, hence why they are in the same class), shuffle, draw, and expose the current top discard.
 
 ### Player.java
-- Responsibility. Track a player’s identity, score, and hand.
+- Responsibility: track a player’s identity, score, and hand.
 
-### UnoFlip.java
-- Responsibility. Orchestrate the entire game loop: setup, turn management, reading keyboard input, placement validation, action card effects, scoring, and printing the resultant state.
 
-## Future Work (M2+)
+
+## Future Work (M3+)
 - Implement Flip functionality (lightside and darkside of cards)
-- GUI, implement MVC
+- Refine GUI layout like animations for card flipping
