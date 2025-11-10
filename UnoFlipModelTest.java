@@ -137,7 +137,7 @@ class UnoFlipModelTest {
     * Verifies that the getWinner and isGameOver methods correctly state that the game is over, and who the winner of the current game is.
     */
     @Test
-    void getWinner() {
+    void winnerTests() {
         Player p = model.getCurrentPlayer();
         for(int i = 0; i < 7; i++){
             p.removeCard(1);
