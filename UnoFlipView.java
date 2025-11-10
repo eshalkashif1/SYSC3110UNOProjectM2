@@ -6,7 +6,6 @@
  * @version 2.0
  *
  */
-
 public interface UnoFlipView {
 
     /**
