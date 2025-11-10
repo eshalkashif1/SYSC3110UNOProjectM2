@@ -240,15 +240,17 @@ public class UnoFlipModel {
     /**
      * Current player draws a card from the deck and ends their turn.
      */
-    public void playerDrawsCard(){
-        if (gameOver) return;
+    public Card playerDrawsCard(){
+        //if (gameOver) return;
+        if (roundOver) return null;
 
         Player cur = getCurrentPlayer();
         Card drawnCard = deck.drawCard();
         cur.addCard(drawnCard);
 
-        pendingAdvanceSteps = 1;
+        //pendingAdvanceSteps = 1;
         notifyViews();
+        return drawnCard;
     }
 
     /**

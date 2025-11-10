@@ -17,6 +17,7 @@ public class UnoFlipController {
     private UnoFlipModel model;
     private UnoFlipFrame view;
     private boolean actionTakenThisTurn; // (played one card OR drawn one card) this turn
+    private boolean drewCardThisTurn;   // track if player drew a card
 
     /**
      * Constructor for UnoFlipController
@@ -44,6 +45,7 @@ public class UnoFlipController {
         view.getNextPlayerButton().addActionListener(e -> handleNextPlayer());
 
         actionTakenThisTurn = false;
+        drewCardThisTurn = false;
     }
 
     /**
@@ -97,7 +99,7 @@ public class UnoFlipController {
             return;
         }
         // don't allow playing a second card in the same turn
-        if (actionTakenThisTurn) {
+        if (actionTakenThisTurn && !drewCardThisTurn) {
             view.displayError("You already played or drew this turn.");
             return;
         }
@@ -139,6 +141,8 @@ public class UnoFlipController {
 
         // normal turn state after a regular play (no round end)
         actionTakenThisTurn = true;
+        drewCardThisTurn = false;
+
         setHandButtonsEnabled(false);
         view.getDrawCardButton().setEnabled(false);
         view.getNextPlayerButton().setEnabled(true);
