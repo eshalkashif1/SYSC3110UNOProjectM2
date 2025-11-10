@@ -141,8 +141,6 @@ public class UnoFlipController {
 
         // normal turn state after a regular play (no round end)
         actionTakenThisTurn = true;
-        drewCardThisTurn = false;
-
         setHandButtonsEnabled(false);
         view.getDrawCardButton().setEnabled(false);
         view.getNextPlayerButton().setEnabled(true);
