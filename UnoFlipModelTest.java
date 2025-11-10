@@ -7,6 +7,15 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+
+/**
+* Tests the functionality of the UnoFlipModel class.
+* This test suite makes sure all public methods in the UnoFlipModel Class
+ * return the proper data.
+ *
+ * @author Matthew Sanii
+ * @version 1
+*/
 class UnoFlipModelTest {
 
     UnoFlipModel model;
@@ -25,6 +34,9 @@ class UnoFlipModelTest {
     public void tearDown(){
     }
 
+    /**
+    * Verifies that the initializeGame method correctly starts a new game.
+    */
     @Test
     void initializeGame(){
         List<Player> plays = new ArrayList<>();
@@ -39,6 +51,9 @@ class UnoFlipModelTest {
         }
     }
 
+    /**
+    * Verifies that the isGameOver method correctly states that the current game is over.
+    */
     @Test
     void isGameOver() {
         for(Player p : model.getPlayers()){
@@ -56,6 +71,9 @@ class UnoFlipModelTest {
         assertTrue(model.isGameOver());
     }
 
+    /**
+    * Verifies that the getWinner method correctly states who the winner of the current game is.
+    */
     @Test
     void getWinner() {
         for(Player p : model.getPlayers()){
@@ -72,6 +90,9 @@ class UnoFlipModelTest {
         assertEquals("A", model.getWinner().getName());
     }
 
+    /**
+    * Verifies that the getDirection method correctly states the current turn order direction.
+    */
     @Test
     void getDirection() {
         for(Player p : model.getPlayers()){
@@ -92,6 +113,9 @@ class UnoFlipModelTest {
         assertEquals(-1, model.getDirection());
     }
 
+    /**
+    * Verifies that the scoring scheme triggers when the round is over.
+    */
     @Test
     void getScore(){
         Player p = model.getCurrentPlayer();
