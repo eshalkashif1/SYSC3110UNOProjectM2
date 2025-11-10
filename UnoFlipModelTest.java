@@ -52,42 +52,42 @@ class UnoFlipModelTest {
     }
 
     /**
-    * Verifies that the isGameOver method correctly states that the current game is over.
+    * Verifies that the isRoundOver method correctly states that the current round is over.
     */
     @Test
-    void isGameOver() {
+    void isRoundOver() {
         for(Player p : model.getPlayers()){
             for(int i = 0; i < 7; i++){
                 p.removeCard(1);
             }
             p.addCard(new Card(1,5,6));
         }
-        assertFalse(model.isGameOver());
+        assertFalse(model.isRoundOver());
         model.playerDrawsCard();
         model.advanceToNextPlayer();
         assertEquals("B", model.getCurrentPlayer().getName());
         model.playCard(0, Card.colortype.RED);
         model.advanceToNextPlayer();
-        assertTrue(model.isGameOver());
+        assertTrue(model.isRoundOver());
     }
 
     /**
-    * Verifies that the getWinner method correctly states who the winner of the current game is.
+    * Verifies that the getRoundWinner method correctly states who the winner of the current round is.
     */
     @Test
-    void getWinner() {
+    void getRoundWinner() {
         for(Player p : model.getPlayers()){
             for(int i = 0; i < 7; i++){
                 p.removeCard(1);
             }
             p.addCard(new Card(1,5,6));
         }
-        assertNull(model.getWinner());
-        assertFalse(model.isGameOver());
+        assertNull(model.getRoundWinner());
+        assertFalse(model.isRoundOver());
         model.playCard(0, Card.colortype.RED);
         model.advanceToNextPlayer();
-        assertTrue(model.isGameOver());
-        assertEquals("A", model.getWinner().getName());
+        assertTrue(model.isRoundOver());
+        assertEquals("A", model.getRoundWinner().getName());
     }
 
     /**
@@ -131,5 +131,27 @@ class UnoFlipModelTest {
         model.playCard(0, Card.colortype.RED);
         model.advanceToNextPlayer();
         assertEquals(10, model.getCurrentPlayer().getScore());
+    }
+
+    /**
+    * Verifies that the getWinner and isGameOver methods correctly state that the game is over, and who the winner of the current game is.
+    */
+    @Test
+    void getWinner() {
+        Player p = model.getCurrentPlayer();
+        for(int i = 0; i < 7; i++){
+            p.removeCard(1);
+        }
+        p.addCard(new Card(1,5,6));
+        Player b = model.getPlayers().get(1);
+        for(int j = 0; j < 10; j++){
+            b.addCard(new Card(0, 6, 1);
+        }
+        assertNull(model.getWinner());
+        assertFalse(model.isGameOver());
+        model.playCard(0, Card.colortype.RED);
+        model.advanceToNextPlayer();
+        assertTrue(model.isGameOver());
+        assertEquals("A", model.getWinner().getName());
     }
 }
