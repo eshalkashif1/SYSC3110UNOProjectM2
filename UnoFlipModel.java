@@ -26,6 +26,11 @@ public class UnoFlipModel {
     // Pending steps to advance when "Next Player" is pressed
     private int pendingAdvanceSteps;
 
+    private boolean roundOver;         // is the current round finished?
+    private Player roundWinner;        // winner of the round (not whole game)
+    private static final int TARGET_SCORE = 500;
+
+
     // List of views to notify
     private List<UnoFlipView> views;
 
@@ -42,6 +47,8 @@ public class UnoFlipModel {
         this.winner = null;
         this.views = new ArrayList<>();
         this.pendingAdvanceSteps = 1;
+        this.roundOver = false;
+        this.roundWinner = null;
     }
 
     /**
@@ -68,6 +75,23 @@ public class UnoFlipModel {
             view.update();
         }
     }
+
+    /**
+     * Get if the round is over
+     * @return True if the round is over, False otherwise
+     */
+    public boolean isRoundOver() {
+        return roundOver;
+    }
+
+    /**
+     * Get the round winner
+     * @return the Player that won
+     */
+    public Player getRoundWinner() {
+        return roundWinner;
+    }
+
 
     /**
      * Initializes a new game with specified players.
@@ -103,8 +127,49 @@ public class UnoFlipModel {
         winner = null;
         pendingAdvanceSteps = 1;
 
+        roundOver = false;
+        roundWinner = null;
+
         notifyViews();
     }
+
+    /**
+     * Start a new round after a player wins
+     */
+    public void startNewRound() {
+        if (players.isEmpty()) return;
+
+        // New deck & clear hands
+        deck = new Deck();
+        for (Player p : players) {
+            p.clearHand();
+        }
+
+        // Deal cards again
+        for (Player p : players) {
+            while (p.getHand().size() < CARDS_PER_PLAYER) {
+                p.addCard(deck.drawCard());
+            }
+        }
+
+        // Start discard pile with a NUMBER card, same as initializeGame
+        while (true) {
+            Card c = deck.drawCard();
+            deck.discard(c);
+            if (c.getType() == Card.cardtype.NUMBER) break;
+        }
+
+        currentTurn = 0;
+        direction = 1;
+        forcedColour = null;
+
+        roundOver = false;
+        roundWinner = null;
+
+        // don't touch gameOver or scores here
+        notifyViews();
+    }
+
 
     /**
      * Attempts to play a card from the current player's hand.
@@ -143,16 +208,24 @@ public class UnoFlipModel {
 
         // Check for win condition
         if (cur.getHand().isEmpty()) {
-            gameOver = true;
-            winner = cur;
-            handleSpecialCard(cardToPlay);
-
-            for(Player p: players){
-                if (p != cur){
-                    for(Card c: p.getHand()){
-                        cur.increaseScore(calculatePoints(c));
-                    }
+            int roundPoints = 0;
+            for (Player p : players) {
+                if (p == cur) continue;
+                for (Card c : p.getHand()) {
+                    roundPoints += calculatePoints(c);
                 }
+            }
+
+            cur.increaseScore(roundPoints);
+
+            // Mark round over
+            roundOver = true;
+            roundWinner = cur;
+
+            // Check match end (500+ points)
+            if (cur.getScore() >= TARGET_SCORE) {
+                gameOver = true;     // entire match over
+                winner = cur;        // match winner
             }
             notifyViews();
             return true;

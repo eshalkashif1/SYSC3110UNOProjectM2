@@ -66,6 +66,14 @@ public class Player {
     }
 
     /**
+     * Clear the cards in a hand
+     */
+    public void clearHand() {
+        hand.clear();
+    }
+
+
+    /**
      * Add a card to the player's hand
      * @param card The card to be added
      */
@@ -95,4 +103,6 @@ public class Player {
         }
         return sb.toString();
     }
+
+
 }

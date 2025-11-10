@@ -126,24 +126,23 @@ public class UnoFlipController {
         boolean success = model.playCard(cardIndex, chosenColour);
 
         if (success) {
-            if (model.isGameOver()) {
-                view.displayMessage(model.getWinner().getName() + " wins the game!");
-                handleGameOverIfNeeded();
+            if (model.isRoundOver()) {
+                // Someone emptied their hand; scores updated in model
+                handleEndOfRoundOrGame();  // handle both round and match end
+                return;
             } else {
                 view.displayMessage(currentPlayer.getName() + " played " + cardToPlay.getDescription());
             }
-            // mark that this player has taken their action
-            actionTakenThisTurn = true;                          // *** NEW
-
-            // after playing, disable further plays/draws; enable Next Player
-            setHandButtonsEnabled(false);
-            view.getDrawCardButton().setEnabled(false);
-            view.getNextPlayerButton().setEnabled(true);
         } else {
             view.displayError("Invalid move. Please try a different card.");
         }
 
-        // Update card listeners for new hand
+        // normal turn state after a regular play (no round end)
+        actionTakenThisTurn = true;
+        setHandButtonsEnabled(false);
+        view.getDrawCardButton().setEnabled(false);
+        view.getNextPlayerButton().setEnabled(true);
+
         setupCardListeners();
     }
 
@@ -241,37 +240,63 @@ public class UnoFlipController {
     }
 
     /**
-     * Called after actions that might end the game.
-     * Uses the view to ask the user if they want to play again,
-     * then starts a new game if requested.
+     * Called after a move that might end the round or the whole match.
      */
-    private void handleGameOverIfNeeded() {
-        if (!model.isGameOver()) {
+    private void handleEndOfRoundOrGame() {
+        if (!model.isRoundOver()) {
+            return; // nothing special to do
+        }
+
+        // Disable inputs until we know whether we're continuing
+        setHandButtonsEnabled(false);
+        view.getDrawCardButton().setEnabled(false);
+        view.getNextPlayerButton().setEnabled(false);
+
+        // If the match (to 500) is over:
+        if (model.isGameOver()) {
+            Player matchWinner = model.getWinner();
+            boolean newMatch = view.promptNewMatch(matchWinner);
+
+            if (!newMatch) {
+                // user chose not to restart; leave final state
+                return;
+            }
+
+            // Start a brand new game from scratch (fresh scores, maybe new players)
+            List<String> playerNames = view.promptForGameSetup();
+            if (playerNames == null || playerNames.isEmpty()) {
+                return; // user cancelled
+            }
+
+            boolean success = startNewGame(playerNames);
+            if (success) {
+                view.displayMessage("New game started! " +
+                        model.getCurrentPlayer().getName() + "'s turn.");
+            } else {
+                view.displayError("Failed to start new game.");
+            }
             return;
         }
 
-        Player winner = model.getWinner();
+        // Otherwise only the round is over, but match continues
+        Player roundWinner = model.getRoundWinner();
+        boolean continueGame = view.promptNextRound(roundWinner);
 
-        // Ask user via the view (UI code stays in the view)
-        boolean playAgain = view.promptPlayAgain(winner);
-
-        if (!playAgain) {
-            return; // do nothing, just leave final board on screen
+        if (!continueGame) {
+            // Player chose to stop after this round
+            return;
         }
 
-        // Ask for new player setup (also UI in view)
-        List<String> playerNames = view.promptForGameSetup();
-        if (playerNames == null || playerNames.isEmpty()) {
-            return; // user cancelled
-        }
+        // Start next round (keep scores)
+        model.startNewRound();
 
-        boolean success = startNewGame(playerNames);
-        if (success) {
-            view.displayMessage("New game started! " +
-                    model.getCurrentPlayer().getName() + "'s turn.");
-        } else {
-            view.displayError("Failed to restart game.");
-        }
+        // Reset controller turn state
+        actionTakenThisTurn = false;
+        view.getDrawCardButton().setEnabled(true);
+        view.getNextPlayerButton().setEnabled(false);
+        setHandButtonsEnabled(true);
+
+        setupCardListeners();
     }
 
 

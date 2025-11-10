@@ -224,16 +224,33 @@ public class UnoFlipFrame extends JFrame implements UnoFlipView {
         }
     }
 
+
     /**
-     * Shows a Game Over dialog and asks the user if they want to play again.
-     * UI stays in the view; controller can call this and use the boolean result.
-     *
-     * @param winner the winning player
-     * @return true if the user chose "Yes", false otherwise
+     * Show who won the round and ask if we should continue to the next round.
+     * @param roundWinner the player who won the round
+     * @return true if user wants to continue, false to stop
      */
-    public boolean promptPlayAgain(Player winner) {
-        String message = winner.getName() + " wins the game!\nFinal Score: " + winner.getScore()
-                + "\n\nPlay again?";
+    public boolean promptNextRound(Player roundWinner) {
+        String message = roundWinner.getName() + " won this round!\n"
+                + "Current Score: " + roundWinner.getScore() + "\n\n"
+                + "Continue to the next round?";
+        int choice = JOptionPane.showConfirmDialog(
+                this,
+                message,
+                "Round Over",
+                JOptionPane.YES_NO_OPTION
+        );
+        return choice == JOptionPane.YES_OPTION;
+    }
+
+    /**
+     * Show final match winner and ask if we should start a new game.
+     * @param matchWinner the overall winner (500+ points)
+     * @return true if user wants to start a brand new game
+     */
+    public boolean promptNewMatch(Player matchWinner) {
+        String message = matchWinner.getName() + " wins the game!\nFinal Score: "
+                + matchWinner.getScore() + "\n\nStart a new game?";
         int choice = JOptionPane.showConfirmDialog(
                 this,
                 message,
@@ -242,6 +259,8 @@ public class UnoFlipFrame extends JFrame implements UnoFlipView {
         );
         return choice == JOptionPane.YES_OPTION;
     }
+
+
 
 
     /**
