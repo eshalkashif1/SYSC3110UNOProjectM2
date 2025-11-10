@@ -147,10 +147,10 @@ public class UnoFlipModel {
             winner = cur;
             handleSpecialCard(cardToPlay);
 
-           // int x = players.indexOf(getCurrentPlayer());
+            int x = players.indexOf(getCurrentPlayer());
             for(Player p: players){
-                //if(players.indexOf(p) != x){
-                if (p != cur){
+                if(players.indexOf(p) != x){
+                //if (p != cur){
                     for(Card c: p.getHand()){
                         cur.increaseScore(calculatePoints(c));
                     }
@@ -356,15 +356,6 @@ public class UnoFlipModel {
     public Player getWinner() {
         return winner;
     }
-
-    /**
-     * Gets the index of the current player in the player list.
-     *
-     * @return The current turn index
-     */
-   // public int getCurrentTurnIndex() {
-     //   return currentTurn;
-    //}
 
     /**
      * Gets the current direction of play.
