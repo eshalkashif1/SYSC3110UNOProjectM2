@@ -17,6 +17,7 @@ public class UnoFlipController {
     private UnoFlipModel model;
     private UnoFlipFrame view;
     private boolean actionTakenThisTurn; // (played one card OR drawn one card) this turn
+    private boolean drewCardThisTurn;   // track if player drew a card
 
     /**
      * Constructor for UnoFlipController
@@ -44,6 +45,7 @@ public class UnoFlipController {
         view.getNextPlayerButton().addActionListener(e -> handleNextPlayer());
 
         actionTakenThisTurn = false;
+        drewCardThisTurn = false;
     }
 
     /**
@@ -83,7 +85,7 @@ public class UnoFlipController {
                     int cardIndex = Integer.parseInt(buttonName.substring(5));
                     cardButton.addActionListener(e -> handleCardClick(cardIndex));
                 }
-                cardButton.setEnabled(!actionTakenThisTurn);
+                cardButton.setEnabled(!actionTakenThisTurn || drewCardThisTurn);
             }
         }
     }
@@ -136,6 +138,7 @@ public class UnoFlipController {
 
             // *** ONLY on success should this turn be considered "used"
             actionTakenThisTurn = true;
+            drewCardThisTurn = false;
             setHandButtonsEnabled(false);
             view.getDrawCardButton().setEnabled(false);
             view.getNextPlayerButton().setEnabled(true);
@@ -174,14 +177,20 @@ public class UnoFlipController {
         Player currentPlayer = model.getCurrentPlayer();
         String playerName = currentPlayer.getName();
 
-        model.playerDrawsCard();
+        //model.playerDrawsCard();
+        Card drawn = model.playerDrawsCard();
+        if (drawn == null) {
+            view.displayError("Cannot draw right now.");
+            return;
+        }
         view.displayMessage(playerName + " drew a card.");
 
         // after drawing, the action for this turn is done
-        actionTakenThisTurn = true;
+        drewCardThisTurn = true;
+        actionTakenThisTurn = false;
 
         // can't draw again or play more cards; must press Next Player
-        setHandButtonsEnabled(false);
+        setHandButtonsEnabled(true);
         view.getDrawCardButton().setEnabled(false);
         view.getNextPlayerButton().setEnabled(true);
 
