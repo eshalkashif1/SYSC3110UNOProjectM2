@@ -147,10 +147,8 @@ public class UnoFlipModel {
             winner = cur;
             handleSpecialCard(cardToPlay);
 
-            int x = players.indexOf(getCurrentPlayer());
             for(Player p: players){
-                if(players.indexOf(p) != x){
-                //if (p != cur){
+                if (p != cur){
                     for(Card c: p.getHand()){
                         cur.increaseScore(calculatePoints(c));
                     }
