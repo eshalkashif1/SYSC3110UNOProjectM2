@@ -222,6 +222,11 @@ public class UnoFlipController {
         view.getNextPlayerButton().setEnabled(false);
         setHandButtonsEnabled(true);
         setupCardListeners();
+
+        Player current = model.getCurrentPlayer();
+        if (current != null) {
+            view.displayMessage(current.getName() + "'s turn.");
+        }
     }
 
     /**
@@ -252,7 +257,7 @@ public class UnoFlipController {
         // Set up card listeners after initial deal
         setupCardListeners();
 
-        view.getNextPlayerButton().setEnabled(true);
+        //view.getNextPlayerButton().setEnabled(true);
 
         return true;
     }
