@@ -44,7 +44,6 @@ public class UnoFlipFrame extends JFrame implements UnoFlipView {
         model.addView(this);
 
         initializeComponents();
-        //setVisible(true);
     }
 
     /**
@@ -74,7 +73,7 @@ public class UnoFlipFrame extends JFrame implements UnoFlipView {
 
         // Player hand panel
         playerHandPanel = new JPanel();
-// 0 rows = “as many rows as needed”, 7 columns across, with gaps 5x5
+        // 0 rows = as many rows as needed, 7 columns across, with gaps 5x5
         playerHandPanel.setLayout(new GridLayout(0, 7, 5, 5));
         JScrollPane handScrollPane = new JScrollPane(
                 playerHandPanel,
@@ -93,7 +92,6 @@ public class UnoFlipFrame extends JFrame implements UnoFlipView {
 
         nextPlayerButton = new JButton("NEXT PLAYER");
         nextPlayerButton.setFont(new Font("Arial", Font.BOLD, 14));
-        //nextPlayerButton.setEnabled(false);
 
         buttonPanel.add(drawCardButton);
         buttonPanel.add(nextPlayerButton);
@@ -213,14 +211,6 @@ public class UnoFlipFrame extends JFrame implements UnoFlipView {
         if (model.isGameOver()) {
             drawCardButton.setEnabled(false);
             nextPlayerButton.setEnabled(false);
-            /*
-            Player winner = model.getWinner();
-            JOptionPane.showMessageDialog(this,
-                    winner.getName() + " wins the game!\nFinal Score: " + winner.getScore(),
-                    "Game Over",
-                    JOptionPane.INFORMATION_MESSAGE);
-
-             */
         }
     }
 
@@ -260,8 +250,6 @@ public class UnoFlipFrame extends JFrame implements UnoFlipView {
         );
         return choice == JOptionPane.YES_OPTION;
     }
-
-
 
 
     /**
@@ -433,5 +421,4 @@ public class UnoFlipFrame extends JFrame implements UnoFlipView {
                 return null;
         }
     }
-
 }

@@ -34,7 +34,7 @@ public class UnoFlipController {
 
     }
 
-    /*
+    /**
      * Initializes controller by setting up all event listeners
      */
     private void initController() {
@@ -94,15 +94,14 @@ public class UnoFlipController {
                         enable = !actionTakenThisTurn;
                     }
                     cardButton.setEnabled(enable);
-
                 }
-
             }
         }
     }
 
     /**
      * Handles clicking on a card to play it
+     * @param cardIndex the index of the card in the player's hand
      */
     private void handleCardClick(int cardIndex) {
         if (model.isGameOver()) {
@@ -177,7 +176,7 @@ public class UnoFlipController {
                 view.displayMessage(msg);
             }
 
-            // *** ONLY on success should this turn be considered "used"
+            // ONLY on success should this turn be considered "used"
             actionTakenThisTurn = true;
             drewCardThisTurn = false;
             drawnCardIndexThisTurn = -1;
@@ -191,13 +190,12 @@ public class UnoFlipController {
 
             if (drewCardThisTurn) {
                 // After drawing, you may only play the drawn card or skip.
-                // Keep only the drawn card enabled; allow skipping; do NOT allow drawing again.
+                // Keep only the drawn card enabled; allow skipping do not allow drawing again.
                 setHandButtonsEnabled(false);
                 enableOnlyDrawnCardButton();
 
                 view.getDrawCardButton().setEnabled(false);
                 view.getNextPlayerButton().setEnabled(true);
-                // actionTakenThisTurn stays false, so player can still either play the drawn card or skip
             } else {
                 // Normal (pre-draw) invalid: let them try a different card or draw one
                 actionTakenThisTurn = false;
@@ -205,13 +203,7 @@ public class UnoFlipController {
                 view.getDrawCardButton().setEnabled(true);
                 view.getNextPlayerButton().setEnabled(false);
             }
-            // Player should still be allowed to choose another card or draw:
-            //actionTakenThisTurn = false;
-            //setHandButtonsEnabled(true);
-            //view.getDrawCardButton().setEnabled(true);
-           // view.getNextPlayerButton().setEnabled(false);
         }
-
         // Update card listeners for new hand
         setupCardListeners();
     }
@@ -286,7 +278,7 @@ public class UnoFlipController {
 
 
     /**
-     * *** Handles Next Player button click
+     * Handles Next Player button click
      */
     private void handleNextPlayer() {
         if (model.isGameOver()) {
@@ -347,8 +339,6 @@ public class UnoFlipController {
 
         // Set up card listeners after initial deal
         setupCardListeners();
-
-       // view.getNextPlayerButton().setEnabled(true);
 
         return true;
     }
