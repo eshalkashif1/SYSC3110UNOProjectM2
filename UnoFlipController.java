@@ -150,7 +150,31 @@ public class UnoFlipController {
                 handleEndOfRoundOrGame();  // handle both round and match end
                 return;
             } else {
-                view.displayMessage(currentPlayer.getName() + " played " + cardToPlay.getDescription());
+                String msg;
+
+                // SPECIAL MESSAGES FOR DRAW_ONE AND WILDTWO
+                if (cardToPlay.getType() == Card.cardtype.DRAW_ONE) {
+                    Player victim = model.getNextPlayer();
+                    if (victim != null) {
+                        msg = currentPlayer.getName() + " played DRAW ONE, "
+                                + victim.getName() + " picked up one card.";
+                    } else {
+                        msg = currentPlayer.getName() + " played DRAW ONE.";
+                    }
+                } else if (cardToPlay.getType() == Card.cardtype.WILDTWO) {
+                    Player victim = model.getNextPlayer();
+                    if (victim != null) {
+                        msg = currentPlayer.getName() + " played WILD +2, "
+                                + victim.getName() + " picked up two cards.";
+                    } else {
+                        msg = currentPlayer.getName() + " played WILD +2.";
+                    }
+                } else {
+                    // default message for all other cards (unchanged)
+                    msg = currentPlayer.getName() + " played " + cardToPlay.getDescription();
+                }
+
+                view.displayMessage(msg);
             }
 
             // *** ONLY on success should this turn be considered "used"
