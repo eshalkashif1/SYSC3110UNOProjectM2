@@ -16,7 +16,7 @@ Key features implemented:
 
 ## Team Member Contributions
 - Eshal Kashif: Developed "UnoFlipFrame.java", "UnoFlipView", and "UnoFlipController.java" 
-- Emma Wong: Developed "UnoFlipModel.java", "Data_Structure_Explanation.txt", README.
+- Emma Wong: Developed "UnoFlipModel.java", "Data_Structure_Explanation.md", README.
 - Anita Gaffuri Kasbiy: Created the UML diagram and sequence diagrams.
 - Matthew Sanii: Developed "UnoFlipModelTest.java"
   
@@ -26,9 +26,13 @@ Key features implemented:
 - Responsibility: manages core game logic including player turns, deck statem action card effects, and scoring.
 - Implements the Model in MVC; notifies registered Views of changes through the Observer pattern
 
-### UnoFlipView.java
+### UnoFlipFrame.java
 - Responsibility: provides the graphical representation of the game state. Displays cards, player names, and action buttons inside a JFrame.
 - Implements the View component of MVC, updating automatically when the Model changes.
+
+### UnoFlipView.java
+- Responsibility: provides the interface for the Frame to implement speccific methods.
+- Implements the View Interface component of the MVC that allows the model to call structured methods.
 
 ### UnoFlipController.java
 - Responsibility: handles user input from the GUI (mouse clicks/button presses) and updates the Model accordingly.
@@ -49,3 +53,6 @@ Key features implemented:
 ## Future Work (M3+)
 - Implement Flip functionality (lightside and darkside of cards)
 - Refine GUI layout like animations for card flipping
+
+## Changes to Past Work (M1->M2)
+- Please refer to Data_Structure_Explanation.md for descriptions and justifications of changes made between M1 and M2.
