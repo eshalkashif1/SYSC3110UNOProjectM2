@@ -16,7 +16,7 @@ Key features implemented:
 
 ## Team Member Contributions
 - Eshal Kashif: Developed "UnoFlipFrame.java", "UnoFlipView", and "UnoFlipController.java" 
-- Emma Wong: Developed "UnoFlipModel.java" and README.
+- Emma Wong: Developed "UnoFlipModel.java", "Data_Structure_Explanation.txt", README.
 - Anita Gaffuri Kasbiy: Created the UML diagram and sequence diagrams.
 - Matthew Sanii: Developed "UnoFlipModelTest.java"
   

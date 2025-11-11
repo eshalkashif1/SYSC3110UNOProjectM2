@@ -107,8 +107,6 @@ class UnoFlipModelTest {
         model.advanceToNextPlayer();
         assertEquals(1, model.getDirection());
         assertEquals("B", model.getCurrentPlayer().getName());
-        System.out.println(model.getForcedColour());
-        System.out.print(model.getCurrentPlayer().getHandDescription());
         assertTrue(model.playCard(1, Card.colortype.RED));
         assertEquals(-1, model.getDirection());
     }
@@ -130,7 +128,7 @@ class UnoFlipModelTest {
         assertEquals(0, model.getCurrentPlayer().getScore());
         model.playCard(0, Card.colortype.RED);
         model.advanceToNextPlayer();
-        assertEquals(10, model.getCurrentPlayer().getScore());
+        assertEquals(10, p.getScore());
     }
 
     /**
@@ -145,7 +143,7 @@ class UnoFlipModelTest {
         p.addCard(new Card(1,5,6));
         Player b = model.getPlayers().get(1);
         for(int j = 0; j < 10; j++){
-            b.addCard(new Card(0, 6, 1);
+            b.addCard(new Card(0, 6, 1));
         }
         assertNull(model.getWinner());
         assertFalse(model.isGameOver());
