@@ -102,6 +102,18 @@ public class UnoFlipModel {
         return lastRoundPoints;
     }
 
+    /**
+     * Get the next player
+     * @return The next Player whose turn it will be
+     */
+    public Player getNextPlayer() {
+        if (players.isEmpty()) {
+            return null;
+        }
+        int idx = peekNextPlayerIndex(1);
+        return players.get(idx);
+    }
+
 
 
     /**
