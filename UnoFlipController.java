@@ -169,20 +169,7 @@ public class UnoFlipController {
                 // After drawing, you may only play the drawn card or skip.
                 // Keep only the drawn card enabled; allow skipping; do NOT allow drawing again.
                 setHandButtonsEnabled(false);
-
-                JPanel handPanel = view.getPlayerHandPanel();
-                for (Component comp : handPanel.getComponents()) {
-                    if (comp instanceof JButton) {
-                        JButton b = (JButton) comp;
-                        String nm = b.getName();
-                        if (nm != null && nm.startsWith("card_")) {
-                            try {
-                                int idx = Integer.parseInt(nm.substring(5));
-                                b.setEnabled(idx == drawnCardIndexThisTurn);
-                            } catch (NumberFormatException ignore) {}
-                        }
-                    }
-                }
+                enableOnlyDrawnCardButton();
 
                 view.getDrawCardButton().setEnabled(false);
                 view.getNextPlayerButton().setEnabled(true);
@@ -242,22 +229,8 @@ public class UnoFlipController {
 
         // Disable all card buttons, then enable only the drawn card button
         setHandButtonsEnabled(false);
-        JPanel handPanel = view.getPlayerHandPanel();
-        for (Component comp : handPanel.getComponents()){
-            if (comp instanceof JButton){
-                JButton b = (JButton) comp;
-                String name = b.getName();
-                if (name != null  && name.startsWith("card_")) {
-                    try {
-                        int index = Integer.parseInt(name.substring(5));
-                        if (index == drawnCardIndexThisTurn) {
-                            b.setEnabled(true);
+        enableOnlyDrawnCardButton();
 
-                        }
-                    } catch (NumberFormatException ignore) {}
-                }
-            }
-        }
         // cannot draw again; can play drawn card or press Next Player
         view.getDrawCardButton().setEnabled(false);
         view.getNextPlayerButton().setEnabled(true);
@@ -265,6 +238,28 @@ public class UnoFlipController {
         // Update card listeners for new hand
         setupCardListeners();
     }
+
+    /**
+     * Enables only the drawn card button in the player's hand.
+     * Called after drawing or when re-enforcing the draw-only rule.
+     */
+    private void enableOnlyDrawnCardButton() {
+        JPanel handPanel = view.getPlayerHandPanel();
+        for (Component comp : handPanel.getComponents()) {
+            if (comp instanceof JButton) {
+                JButton b = (JButton) comp;
+                String name = b.getName();
+                if (name != null && name.startsWith("card_")) {
+                    try {
+                        int index = Integer.parseInt(name.substring(5));
+                        // Only the drawn card remains enabled
+                        b.setEnabled(index == drawnCardIndexThisTurn);
+                    } catch (NumberFormatException ignore) {}
+                }
+            }
+        }
+    }
+
 
     /**
      * *** Handles Next Player button click
