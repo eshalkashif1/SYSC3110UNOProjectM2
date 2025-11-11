@@ -18,7 +18,7 @@ public class UnoFlipController {
     private UnoFlipFrame view;
     private boolean actionTakenThisTurn; // (played one card OR drawn one card) this turn
     private boolean drewCardThisTurn;   // track if player drew a card
-
+    private int drawnCardIndexThisTurn = -1;
     /**
      * Constructor for UnoFlipController
      *
@@ -84,8 +84,19 @@ public class UnoFlipController {
                 if (buttonName != null && buttonName.startsWith("card_")) {
                     int cardIndex = Integer.parseInt(buttonName.substring(5));
                     cardButton.addActionListener(e -> handleCardClick(cardIndex));
+
+                    boolean enable;
+                    if (drewCardThisTurn && drawnCardIndexThisTurn >= 0) {
+                        // after drawing, only the drawn card may be played
+                        enable = (cardIndex == drawnCardIndexThisTurn);
+                    } else {
+                        // Normal rule - enabled if you haven't taken an action yet
+                        enable = !actionTakenThisTurn;
+                    }
+                    cardButton.setEnabled(enable);
+
                 }
-                cardButton.setEnabled(!actionTakenThisTurn || drewCardThisTurn);
+
             }
         }
     }
@@ -109,6 +120,12 @@ public class UnoFlipController {
 
         if (cardIndex < 0 || cardIndex >= hand.size()) {
             view.displayError("Invalid card index.");
+            return;
+        }
+
+        // If the player drew this turn, they may only play the drawn card
+        if (drewCardThisTurn && cardIndex != drawnCardIndexThisTurn) {
+            view.displayError("After drawing, you may only play the drawn card or skip.");
             return;
         }
 
@@ -139,6 +156,7 @@ public class UnoFlipController {
             // *** ONLY on success should this turn be considered "used"
             actionTakenThisTurn = true;
             drewCardThisTurn = false;
+            drawnCardIndexThisTurn = -1;
             setHandButtonsEnabled(false);
             view.getDrawCardButton().setEnabled(false);
             view.getNextPlayerButton().setEnabled(true);
@@ -147,11 +165,40 @@ public class UnoFlipController {
             // On invalid move: show error and keep the turn active
             view.displayError("Invalid move. Please try a different card.");
 
+            if (drewCardThisTurn) {
+                // After drawing, you may only play the drawn card or skip.
+                // Keep only the drawn card enabled; allow skipping; do NOT allow drawing again.
+                setHandButtonsEnabled(false);
+
+                JPanel handPanel = view.getPlayerHandPanel();
+                for (Component comp : handPanel.getComponents()) {
+                    if (comp instanceof JButton) {
+                        JButton b = (JButton) comp;
+                        String nm = b.getName();
+                        if (nm != null && nm.startsWith("card_")) {
+                            try {
+                                int idx = Integer.parseInt(nm.substring(5));
+                                b.setEnabled(idx == drawnCardIndexThisTurn);
+                            } catch (NumberFormatException ignore) {}
+                        }
+                    }
+                }
+
+                view.getDrawCardButton().setEnabled(false);
+                view.getNextPlayerButton().setEnabled(true);
+                // actionTakenThisTurn stays false, so player can still either play the drawn card or skip
+            } else {
+                // Normal (pre-draw) invalid: let them try a different card or draw one
+                actionTakenThisTurn = false;
+                setHandButtonsEnabled(true);
+                view.getDrawCardButton().setEnabled(true);
+                view.getNextPlayerButton().setEnabled(false);
+            }
             // Player should still be allowed to choose another card or draw:
-            actionTakenThisTurn = false;
-            setHandButtonsEnabled(true);
-            view.getDrawCardButton().setEnabled(true);
-            view.getNextPlayerButton().setEnabled(false);
+            //actionTakenThisTurn = false;
+            //setHandButtonsEnabled(true);
+            //view.getDrawCardButton().setEnabled(true);
+           // view.getNextPlayerButton().setEnabled(false);
         }
 
         // Update card listeners for new hand
@@ -177,7 +224,7 @@ public class UnoFlipController {
         Player currentPlayer = model.getCurrentPlayer();
         String playerName = currentPlayer.getName();
 
-        //model.playerDrawsCard();
+        //Draw one card and add it to the hand
         Card drawn = model.playerDrawsCard();
         if (drawn == null) {
             view.displayError("Cannot draw right now.");
@@ -185,12 +232,33 @@ public class UnoFlipController {
         }
         view.displayMessage(playerName + " drew a card.");
 
-        // after drawing, the action for this turn is done
+        // player may only play the drawn card or skip to next player
         drewCardThisTurn = true;
         actionTakenThisTurn = false;
 
-        // can't draw again or play more cards; must press Next Player
-        setHandButtonsEnabled(true);
+        // determine the index of the drawn card
+        List<Card> hand = currentPlayer.getHand();
+        drawnCardIndexThisTurn =  hand.size() - 1;
+
+        // Disable all card buttons, then enable only the drawn card button
+        setHandButtonsEnabled(false);
+        JPanel handPanel = view.getPlayerHandPanel();
+        for (Component comp : handPanel.getComponents()){
+            if (comp instanceof JButton){
+                JButton b = (JButton) comp;
+                String name = b.getName();
+                if (name != null  && name.startsWith("card_")) {
+                    try {
+                        int index = Integer.parseInt(name.substring(5));
+                        if (index == drawnCardIndexThisTurn) {
+                            b.setEnabled(true);
+
+                        }
+                    } catch (NumberFormatException ignore) {}
+                }
+            }
+        }
+        // cannot draw again; can play drawn card or press Next Player
         view.getDrawCardButton().setEnabled(false);
         view.getNextPlayerButton().setEnabled(true);
 
@@ -207,7 +275,7 @@ public class UnoFlipController {
             return;
         }
         //  prevent skipping your turn by pressing Next Player immediately
-        if (!actionTakenThisTurn) {
+        if (!actionTakenThisTurn && !drewCardThisTurn) {
             view.displayError("You must play a card or draw before ending your turn.");
             return;
         }
@@ -216,6 +284,10 @@ public class UnoFlipController {
 
         // new player's turn starts, so they haven't taken an action yet
         actionTakenThisTurn = false;
+
+        // clear any drawn card constraint for the next player
+        drewCardThisTurn = false;
+        drawnCardIndexThisTurn = -1;
 
         // enable play/draw, disable Next Player until they act
         view.getDrawCardButton().setEnabled(true);
@@ -252,7 +324,7 @@ public class UnoFlipController {
         // Set up card listeners after initial deal
         setupCardListeners();
 
-        view.getNextPlayerButton().setEnabled(true);
+       // view.getNextPlayerButton().setEnabled(true);
 
         return true;
     }
