@@ -9,17 +9,17 @@ From milestone 1 to milestone 2, the data structures updated from a text-based d
 ## Modified UML Relationships
 The UML diagram was expanded and restructured to reflect the MVC architecture and new class interactions introduced in milestone 2.
 
-  # Model-View Relationship:
+  ### Model-View Relationship:
     - The UnoFlipModel now maintains a list of registered UnoFlipView Observers
     - It notifies all views of state changes through notifyViews()
     - The UnoFlipFrame implements the UnoFlipView interface, allowing the UnoFlipModel to update one or more active views whenever the game state changes.
 
-  # Model-Controller Relationship:
+  ### Model-Controller Relationship:
     - The UnoFlipController holds references to both the UnoFlipModel and the UnoFlipFrame, allowing for their communication.
     - The controller updates the model in response to user actions while the model triggers updates in the view when its state changes.
     - This ensures indirect interaction between the user interface and core logic. Thus, reducing coupling.
 
-  # View-Controller Relationship:
+  ### View-Controller Relationship:
     - The UnoFlipFrame delegates all user interactions to the UnoFlipController.
     - This establishes a relationship where the View depends on the Controller for handling events and game progression. 
 
