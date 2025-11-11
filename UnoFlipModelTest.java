@@ -145,7 +145,7 @@ class UnoFlipModelTest {
         p.addCard(new Card(1,5,6));
         Player b = model.getPlayers().get(1);
         for(int j = 0; j < 10; j++){
-            b.addCard(new Card(0, 6, 1));
+            b.addCard(new Card(0, 6, 1);
         }
         assertNull(model.getWinner());
         assertFalse(model.isGameOver());
