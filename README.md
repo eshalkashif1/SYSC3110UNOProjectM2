@@ -52,6 +52,7 @@ Key features implemented:
 
 ## Future Work (M3+)
 - Implement Flip functionality (lightside and darkside of cards)
+- AI Player Capability
 - Refine GUI layout like animations for card flipping
 
 ## Changes to Past Work (M1->M2)
