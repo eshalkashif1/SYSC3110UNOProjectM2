@@ -130,7 +130,7 @@ class UnoFlipModelTest {
         assertEquals(0, model.getCurrentPlayer().getScore());
         model.playCard(0, Card.colortype.RED);
         model.advanceToNextPlayer();
-        assertEquals(10, model.getCurrentPlayer().getScore());
+        assertEquals(10, p.getScore());
     }
 
     /**
