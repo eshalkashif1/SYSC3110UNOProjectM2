@@ -14,6 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * return the proper data.
  *
  * @author Matthew Sanii
+ * @author Eshal Kashif (playerDrawsCardAddsOneCard(), illegalPlayDoesNotChangeState(), startNewRoundKeepsScoresAndPlayers())
  * @version 1
 */
 class UnoFlipModelTest {
@@ -152,4 +153,94 @@ class UnoFlipModelTest {
         assertTrue(model.isGameOver());
         assertEquals("A", model.getWinner().getName());
     }
+
+    /**
+     * Make sure game adds exactly 1 card to the current player,
+     * does not end the round, and does not change scores.
+     */
+    @Test
+    void playerDrawsCardAddsOneCard() {
+        Player current = model.getCurrentPlayer();
+        int beforeSize = current.getHand().size();
+        int beforeScore = current.getScore();
+
+        model.playerDrawsCard();
+
+        assertEquals(beforeSize + 1, current.getHand().size());
+        assertFalse(model.isRoundOver());
+        assertEquals(beforeScore, current.getScore());
+    }
+
+    /**
+     * Test that an illegal move (wild card with null colour) does not change game state
+     */
+    @Test
+    void illegalPlayDoesNotChangeState() {
+        Player current = model.getCurrentPlayer();
+
+        // Clear current player's hand completely
+        while (!current.getHand().isEmpty()) {
+            current.removeCard(1);  // Player.removeCard is 1-based
+        }
+
+        // Give them a single WILD card
+        Card wild = new Card(0, 5, 0); // any colour int is ignored for WILD
+        current.addCard(wild);
+
+        int beforeScore = current.getScore();
+        Card topBefore = model.getTopCard();
+        boolean roundBefore = model.isRoundOver();
+
+        // Illegal: trying to play a WILD with no chosen colour (null)
+        boolean success = model.playCard(0, null);
+
+        // Must be rejected
+        assertFalse(success);
+
+        // State must NOT change
+        assertEquals(beforeScore, current.getScore(), "Score should not change");
+        assertSame(topBefore, model.getTopCard(), "Top card should not change");
+        assertEquals(roundBefore, model.isRoundOver(), "Round-over flag should not change");
+
+        // Hand should still contain exactly that same wild card
+        assertEquals(1, current.getHand().size(), "Player should still have exactly 1 card");
+        assertSame(wild, current.getHand().get(0), "That card should still be the wild we added");
+    }
+
+    /**
+     * Tests that game resets round state but keeps scores & players
+     */
+    @Test
+    void startNewRoundKeepsScoresAndPlayers() {
+        // Force a round win for A with some score
+        Player a = model.getCurrentPlayer();
+        Player b = model.getPlayers().get(1);
+
+        // clear hands, give Player A a wild, and Player B a 10-point card
+        for (Player p : model.getPlayers()) {
+            for (int i = 0; i < 7; i++) p.removeCard(1);
+        }
+        a.addCard(new Card(1,5,0));          // WILD
+        b.addCard(new Card(0,0,10));         // NUMBER 10
+
+        model.playCard(0, Card.colortype.RED);
+        assertTrue(model.isRoundOver());
+        int scoreAfterRound = a.getScore();
+
+        model.startNewRound();
+
+        // players unchanged
+        assertEquals(2, model.getPlayers().size());
+        assertEquals("A", model.getPlayers().get(0).getName());
+        assertEquals("B", model.getPlayers().get(1).getName());
+
+        // round flags reset, score kept
+        assertFalse(model.isRoundOver());
+        assertNull(model.getRoundWinner());
+        assertEquals(scoreAfterRound, a.getScore());
+    }
+
+
+
+
 }
