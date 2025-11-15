@@ -19,7 +19,7 @@ public class UnoFlipModel {
     private Deck deck;
     private int currentTurn;
     private int direction; // +1 for clockwise, -1 for counter-clockwise
-    private Card.colortype forcedColour; // Active colour after Wild card
+    private int forcedColour; // Active colour after Wild card
     private boolean gameOver;
     private Player winner;
 
@@ -30,6 +30,7 @@ public class UnoFlipModel {
     private Player roundWinner;        // winner of the round (not whole game)
     private static final int TARGET_SCORE = 500;
     private int lastRoundPoints;
+    private int side;
 
 
     // List of views to notify
@@ -43,7 +44,7 @@ public class UnoFlipModel {
         this.deck = new Deck();
         this.currentTurn = 0;
         this.direction = 1;
-        this.forcedColour = null;
+        this.forcedColour = 5;
         this.gameOver = false;
         this.winner = null;
         this.views = new ArrayList<>();
@@ -51,6 +52,7 @@ public class UnoFlipModel {
         this.roundOver = false;
         this.roundWinner = null;
         this.lastRoundPoints = 0;
+        this.side = 0;
     }
 
     /**
@@ -120,7 +122,7 @@ public class UnoFlipModel {
      * @param playerNames List of player names
      */
     public void initializeGame(List<String> playerNames){
-
+        side = 0;
         players.clear(); // clear any previous players
 
         // Add players
@@ -144,7 +146,7 @@ public class UnoFlipModel {
 
         currentTurn = 0;
         direction = 1;
-        forcedColour = null;
+        forcedColour = 5;
         gameOver = false;
         winner = null;
         pendingAdvanceSteps = 1;
@@ -184,7 +186,7 @@ public class UnoFlipModel {
 
         currentTurn = 0;
         direction = 1;
-        forcedColour = null;
+        forcedColour = 5;
 
         roundOver = false;
         roundWinner = null;
@@ -201,7 +203,7 @@ public class UnoFlipModel {
      * @param chosenColour The colour chosen if playing a WILD or WILDTWO card, null for regular cards
      * @return true if the card was successfully played, otherwise false if the move is illegal
      */
-    public boolean playCard(int cardIndex, Card.colortype chosenColour){
+    public boolean playCard(int cardIndex, int chosenColour){
         if (gameOver) return false;
 
         Player cur = getCurrentPlayer();
@@ -223,10 +225,19 @@ public class UnoFlipModel {
         deck.discard(cardToPlay);
 
         // Handle wild cards
-        if (cardToPlay.getType() == Card.cardtype.WILD || cardToPlay.getType() == Card.cardtype.WILDTWO) {
-            forcedColour = chosenColour;
-        } else {
-            forcedColour = null;
+        switch(side){
+            case(0):
+                if (cardToPlay.getType() == Card.cardtype.WILD || cardToPlay.getType() == Card.cardtype.WILDTWO) {
+                    forcedColour = chosenColour;
+                } else {
+                    forcedColour = 5;
+                }
+            case(1):
+                if (cardToPlay.getFlipType() == Card.flipType.WILD || cardToPlay.getFlipType() == Card.flipType.WILD_DRAW) {
+                    forcedColour = chosenColour;
+                } else {
+                    forcedColour = 5;
+                }
         }
 
         // Check for win condition
@@ -256,7 +267,7 @@ public class UnoFlipModel {
         }
 
         // Handle special cards
-        handleSpecialCard(cardToPlay);
+        handleSpecialCard(cardToPlay, forcedColour);
         notifyViews();
         return true;
     }
@@ -284,22 +295,33 @@ public class UnoFlipModel {
      * @param chosenColour The colour chosen for wild cards, ignored for regular cards
      * @return true if the card can be legally played, otherwise false
      */
-    private boolean isLegal(Card card, Card.colortype chosenColour){
+    private boolean isLegal(Card card, int chosenColour){
         Card topCard = deck.topCard();
+        if(side == 0){
+            if (card.getType() == Card.cardtype.WILD || card.getType() == Card.cardtype.WILDTWO)
+                return chosenColour != 5 && chosenColour != 4;
 
-        // Wild cards are always legal if colour is chosen
-        if (card.getType() == Card.cardtype.WILD || card.getType() == Card.cardtype.WILDTWO) {
-            return chosenColour != null && chosenColour != Card.colortype.ALL;
+            int active = (forcedColour != 5 ? forcedColour : topCard.getColor().ordinal());
+            boolean colourMatch = (card.getColor().ordinal() == active);
+            boolean numberMatch = (card.getType() == Card.cardtype.NUMBER &&
+                    topCard.getType() == Card.cardtype.NUMBER &&
+                    card.getRank() == topCard.getRank());
+            boolean actionMatch = (card.getType() != Card.cardtype.NUMBER &&
+                    card.getType() == topCard.getType());
+            return colourMatch || numberMatch || actionMatch;
+        } else{
+            if (card.getFlipType() == Card.flipType.WILD || card.getFlipType() == Card.flipType.WILD_DRAW)
+                return chosenColour != 5 && chosenColour != 4;
+
+            int active = (forcedColour != 5 ? forcedColour : topCard.getFlipColor().ordinal());
+            boolean colourMatch = (card.getFlipColor().ordinal() == active);
+            boolean numberMatch = (card.getFlipType() == Card.flipType.NUMBER &&
+                    topCard.getType() == Card.cardtype.NUMBER &&
+                    card.getFlipRank() == topCard.getFlipRank());
+            boolean actionMatch = (card.getFlipType() != Card.flipType.NUMBER &&
+                    card.getFlipType() == topCard.getFlipType());
+            return colourMatch || numberMatch || actionMatch;
         }
-
-        // Determine active colour (from wild or top card)
-        Card.colortype activeColour = (forcedColour != null) ? forcedColour : topCard.getColor();
-
-        // Check colour match, number match, and action card match
-        boolean colourMatch = card.getColor() == activeColour;
-        boolean numberMatch = card.getType() == Card.cardtype.NUMBER && topCard.getType() == Card.cardtype.NUMBER && card.getRank() == topCard.getRank();
-        boolean actionMatch = card.getType() != Card.cardtype.NUMBER && card.getType() == topCard.getType();
-        return colourMatch || numberMatch || actionMatch;
     }
 
     /**
@@ -307,42 +329,88 @@ public class UnoFlipModel {
      *
      * @param card The card whose effects should be applied
      */
-    private void handleSpecialCard(Card card){
-        Card.cardtype type = card.getType();
+    private void handleSpecialCard(Card card, int end){
+        switch(side){
+            case(0):
+                Card.cardtype type = card.getType();
 
-        pendingAdvanceSteps = 1;
-        switch (type){
-            case SKIP:
-                pendingAdvanceSteps = 2;
-                break;
+                pendingAdvanceSteps = 1;
+                switch (type){
+                    case SKIP:
+                        pendingAdvanceSteps = 2;
+                        break;
 
-            case REVERSE:
-                // Reverse direction
-                if (players.size() == 2) {
-                    pendingAdvanceSteps = 0;
+                    case REVERSE:
+                        // Reverse direction
+                        if (players.size() == 2) {
+                            pendingAdvanceSteps = 0;
+                        }
+                        direction = -direction;
+                        break;
+
+                    case DRAW_ONE:
+                        int victim1 = peekNextPlayerIndex(1);
+                        Player nextPlayer1 = players.get(victim1);
+                        Card drawnCard = deck.drawCard();
+                        nextPlayer1.addCard(drawnCard);
+                        pendingAdvanceSteps = 2;
+                        break;
+
+                    case WILDTWO:
+                        int victim2 = peekNextPlayerIndex(1);
+                        Player nextPlayer2 = players.get(victim2);
+                        nextPlayer2.addCard(deck.drawCard());
+                        nextPlayer2.addCard(deck.drawCard());
+                        pendingAdvanceSteps = 2;
+                        break;
+
+                    default:
+                        break;
                 }
-                direction = -direction;
-                break;
+            case(1):
+                Card.flipType ftype = card.getFlipType();
 
-            case DRAW_ONE:
-                int victim1 = peekNextPlayerIndex(1);
-                Player nextPlayer1 = players.get(victim1);
-                Card drawnCard = deck.drawCard();
-                nextPlayer1.addCard(drawnCard);
-                pendingAdvanceSteps = 2;
-                break;
+                pendingAdvanceSteps = 1;
+                switch (ftype){
+                    case SKIP_ALL:
+                        pendingAdvanceSteps = getPlayers().size()-1;
+                        break;
 
-            case WILDTWO:
-                int victim2 = peekNextPlayerIndex(1);
-                Player nextPlayer2 = players.get(victim2);
-                nextPlayer2.addCard(deck.drawCard());
-                nextPlayer2.addCard(deck.drawCard());
-                pendingAdvanceSteps = 2;
-                break;
+                    case REVERSE:
+                        // Reverse direction
+                        if (players.size() == 2) {
+                            pendingAdvanceSteps = 0;
+                        }
+                        direction = -direction;
+                        break;
 
-            default:
-                break;
+                    case DRAW_FIVE:
+                        int victim1 = peekNextPlayerIndex(1);
+                        Player nextPlayer1 = players.get(victim1);
+                        for(int i = 0; i < 5; i++){
+                            Card drawnCard = deck.drawCard();
+                            nextPlayer1.addCard(drawnCard);
+                        }
+                        pendingAdvanceSteps = 2;
+                        break;
+                    case WILD_DRAW:
+                        int needed = end;
+                        int curr = 10;
+                        int victim2 = peekNextPlayerIndex(1);
+                        Player nextPlayer2 = players.get(victim2);
+                        while(curr != needed){
+                            Card x = deck.drawCard();
+                            curr = x.getFlipColor().ordinal();
+                            nextPlayer2.addCard(x);
+                        }
+                        pendingAdvanceSteps = 2;
+                        break;
+
+                    default:
+                        break;
+                }
         }
+
     }
 
     /**
@@ -432,7 +500,7 @@ public class UnoFlipModel {
      *
      * @return The forced colour if a wild effect is active, otherwise null
      */
-    public Card.colortype getForcedColour() {
+    public int getForcedColour() {
         return forcedColour;
     }
 
@@ -461,5 +529,9 @@ public class UnoFlipModel {
      */
     public int getDirection() {
         return direction;
+    }
+
+    public int getSide(){
+        return side;
     }
 }
