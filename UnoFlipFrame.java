@@ -44,6 +44,7 @@ public class UnoFlipFrame extends JFrame implements UnoFlipView {
         model.addView(this);
 
         initializeComponents();
+        //setVisible(true);
     }
 
     /**
@@ -73,7 +74,7 @@ public class UnoFlipFrame extends JFrame implements UnoFlipView {
 
         // Player hand panel
         playerHandPanel = new JPanel();
-        // 0 rows = as many rows as needed, 7 columns across, with gaps 5x5
+// 0 rows = “as many rows as needed”, 7 columns across, with gaps 5x5
         playerHandPanel.setLayout(new GridLayout(0, 7, 5, 5));
         JScrollPane handScrollPane = new JScrollPane(
                 playerHandPanel,
@@ -92,6 +93,7 @@ public class UnoFlipFrame extends JFrame implements UnoFlipView {
 
         nextPlayerButton = new JButton("NEXT PLAYER");
         nextPlayerButton.setFont(new Font("Arial", Font.BOLD, 14));
+        //nextPlayerButton.setEnabled(false);
 
         buttonPanel.add(drawCardButton);
         buttonPanel.add(nextPlayerButton);
@@ -211,37 +213,27 @@ public class UnoFlipFrame extends JFrame implements UnoFlipView {
         if (model.isGameOver()) {
             drawCardButton.setEnabled(false);
             nextPlayerButton.setEnabled(false);
+            /*
+            Player winner = model.getWinner();
+            JOptionPane.showMessageDialog(this,
+                    winner.getName() + " wins the game!\nFinal Score: " + winner.getScore(),
+                    "Game Over",
+                    JOptionPane.INFORMATION_MESSAGE);
+
+             */
         }
     }
 
-
     /**
-     * Show who won the round and ask if we should continue to the next round.
-     * @param roundWinner the player who won the round
-     * @return true if user wants to continue, false to stop
+     * Shows a Game Over dialog and asks the user if they want to play again.
+     * UI stays in the view; controller can call this and use the boolean result.
+     *
+     * @param winner the winning player
+     * @return true if the user chose "Yes", false otherwise
      */
-    public boolean promptNextRound(Player roundWinner) {
-        String message = roundWinner.getName() + " won this round!\n"
-                + "Points this round: " + model.getLastRoundPoints() + "\n"
-                + "Total score: " + roundWinner.getScore() + "\n\n"
-                + "Continue to the next round?";
-        int choice = JOptionPane.showConfirmDialog(
-                this,
-                message,
-                "Round Over",
-                JOptionPane.YES_NO_OPTION
-        );
-        return choice == JOptionPane.YES_OPTION;
-    }
-
-    /**
-     * Show final match winner and ask if we should start a new game.
-     * @param matchWinner the overall winner (500+ points)
-     * @return true if user wants to start a brand new game
-     */
-    public boolean promptNewMatch(Player matchWinner) {
-        String message = matchWinner.getName() + " wins the game!\nFinal Score: "
-                + matchWinner.getScore() + "\n\nStart a new game?";
+    public boolean promptPlayAgain(Player winner) {
+        String message = winner.getName() + " wins the game!\nFinal Score: " + winner.getScore()
+                + "\n\nPlay again?";
         int choice = JOptionPane.showConfirmDialog(
                 this,
                 message,
@@ -251,7 +243,6 @@ public class UnoFlipFrame extends JFrame implements UnoFlipView {
         return choice == JOptionPane.YES_OPTION;
     }
 
-
     /**
      * Updates the top card display
      */
@@ -259,11 +250,11 @@ public class UnoFlipFrame extends JFrame implements UnoFlipView {
         Card topCard = model.getTopCard();
         if (topCard != null) {
             String displayText;
-            Card.colortype forcedColour = model.getForcedColour();
-            if (forcedColour != null) {
+            int forcedColour = model.getForcedColour();
+            if (forcedColour != 5) {
                 displayText = forcedColour + " (from WILD)";
             } else {
-                displayText = topCard.getDescription();
+                displayText = topCard.getDescription(model.getSide());
             }
             topCardLabel.setText("<html><center>" + displayText + "</center></html>");
             topCardLabel.setBackground(getColorForCard(topCard, forcedColour));
@@ -307,18 +298,44 @@ public class UnoFlipFrame extends JFrame implements UnoFlipView {
     private JButton createCardButton(Card card, int index) {
         JButton button = new JButton();
         button.setPreferredSize(new Dimension(CARD_WIDTH, CARD_HEIGHT));
-        button.setBackground(getColorForCard(card, null));
+        button.setBackground(getColorForCard(card, 5));
         button.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
         button.setName("card_" + index); // Set name so controller can identify which card
 
         // Multi-line text for card
-        String cardText = "<html><center><b>" + card.getColor() + "</b><br><br>";
-        if (card.getType() == Card.cardtype.NUMBER) {
-            cardText += "<font size='+3'>" + card.getRank() + "</font>";
-        } else {
-            cardText += card.getType();
+        String cardText = "";
+        switch(model.getSide()) {
+            case (0):
+                cardText = "<html><center><b>" + card.getColor() + "</b><br><br>";
+                if (card.getType() == Card.cardtype.NUMBER) {
+                    cardText += "<font size='+3'>" + card.getRank() + "</font>";
+                } else {
+                    cardText += card.getType();
+                }
+                cardText += "</center></html>";
+                if (card.getType() == Card.cardtype.NUMBER) {
+                    cardText += "<font size='+3'>" + card.getRank() + "</font>";
+                } else {
+                    cardText += card.getType();
+                }
+                cardText += "</center></html>";
+                break;
+            case(1):
+                cardText = "<html><center><b>" + card.getFlipColor() + "</b><br><br>";
+                if (card.getFlipType() == Card.flipType.NUMBER) {
+                    cardText += "<font size='+3'>" + card.getFlipRank() + "</font>";
+                } else {
+                    cardText += card.getFlipType();
+                }
+                cardText += "</center></html>";
+                if (card.getFlipType() == Card.flipType.NUMBER) {
+                    cardText += "<font size='+3'>" + card.getFlipRank() + "</font>";
+                } else {
+                    cardText += card.getFlipType();
+                }
+                cardText += "</center></html>";
+                break;
         }
-        cardText += "</center></html>";
         button.setText(cardText);
 
         return button;
@@ -363,23 +380,44 @@ public class UnoFlipFrame extends JFrame implements UnoFlipView {
      * @param card The card to get the background colour for
      * @param forcedColour The card's colour
      */
-    private Color getColorForCard(Card card, Card.colortype forcedColour) {
-        Card.colortype colorToUse = (forcedColour != null) ? forcedColour : card.getColor();
+    private Color getColorForCard(Card card, int forcedColour) {
+        switch(model.getSide()){
+            case(0):
+                Card.colortype colorToUse = (forcedColour != 5) ? Card.colortype.values()[forcedColour] : card.getColor();
 
-        switch (colorToUse) {
-            case RED:
-                return new Color(255, 100, 100);
-            case BLUE:
-                return new Color(100, 150, 255);
-            case GREEN:
-                return new Color(100, 255, 100);
-            case YELLOW:
-                return new Color(255, 255, 100);
-            case ALL:
-                return new Color(200, 200, 200);
-            default:
-                return Color.WHITE;
+                switch (colorToUse) {
+                    case RED:
+                        return new Color(255, 100, 100);
+                    case BLUE:
+                        return new Color(100, 150, 255);
+                    case GREEN:
+                        return new Color(100, 255, 100);
+                    case YELLOW:
+                        return new Color(255, 255, 100);
+                    case ALL:
+                        return new Color(200, 200, 200);
+                    default:
+                        return Color.WHITE;
+                }
+            case(1):
+                Card.flipcolor newColor = (forcedColour != 5) ? Card.flipcolor.values()[forcedColour] : card.getFlipColor();
+
+                switch (newColor) {
+                    case PINK:
+                        return new Color(255, 100, 100);
+                    case TEAL:
+                        return new Color(100, 150, 255);
+                    case ORANGE:
+                        return new Color(100, 255, 100);
+                    case PURPLE:
+                        return new Color(255, 255, 100);
+                    case ALL:
+                        return new Color(200, 200, 200);
+                    default:
+                        return Color.WHITE;
+                }
         }
+        return Color.WHITE;
     }
 
     /**
@@ -421,4 +459,27 @@ public class UnoFlipFrame extends JFrame implements UnoFlipView {
                 return null;
         }
     }
+
+    /**
+     * Parses a colour string to enum
+     * @param s The inputted colour
+     */
+    private Card.flipcolor parseFlipColour(String s) {
+        if (s == null) return null;
+        s = s.toUpperCase().trim();
+
+        switch (s) {
+            case "PINK":
+                return Card.flipcolor.PINK;
+            case "TEAL":
+                return Card.flipcolor.TEAL;
+            case "ORANGE":
+                return Card.flipcolor.ORANGE;
+            case "PURPLE":
+                return Card.flipcolor.PURPLE;
+            default:
+                return null;
+        }
+    }
+
 }
