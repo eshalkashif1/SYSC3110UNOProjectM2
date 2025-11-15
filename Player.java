@@ -2,7 +2,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-
 /**
  * Class Player - an individual in the UnoFlip game.
  *
@@ -66,14 +65,6 @@ public class Player {
     }
 
     /**
-     * Clear the cards in a hand
-     */
-    public void clearHand() {
-        hand.clear();
-    }
-
-
-    /**
      * Add a card to the player's hand
      * @param card The card to be added
      */
@@ -94,15 +85,13 @@ public class Player {
      * Print a description of all the cards in a player's hand
      * @return The description as a String
      */
-    public String getHandDescription(){
+    public String getHandDescription(int flipped){
         StringBuilder sb = new StringBuilder();
         sb.append(name).append("'s cards: ").append("\n");
         if(hand.isEmpty()) return name + "'s hand is empty";
         for(int i=1; i<=hand.size(); i++){
-            sb.append(i).append(": ").append(hand.get(i-1).getDescription()).append("\n");
+            sb.append(i).append(": ").append(hand.get(i-1).getDescription(flipped)).append("\n");
         }
         return sb.toString();
     }
-
-
 }
