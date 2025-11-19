@@ -8,7 +8,7 @@ import java.util.*;
  * The model notifies subscribed views when the game state changes.
  *
  * @author Emma Wong
- * @version 2.0
+ * @version 2.1
  */
 
 public class UnoFlipModel {
@@ -72,12 +72,6 @@ public class UnoFlipModel {
     /**
      * Notifies all subscribed views to update that the model state has changed.
      */
-  //  private void notifyViews(){
-    //    for(UnoFlipView view : this.views){
-     //       view.update();
-    //    }
-   // }
-
     private void notifyViews(){
         // Build an event object describing the new state
         UnoFlipEvent event = new UnoFlipEvent(this, roundOver, gameOver, players.isEmpty() ? null : getCurrentPlayer(), deck == null ? null : getTopCard(), forcedColour);
@@ -438,16 +432,7 @@ public class UnoFlipModel {
     }
 
     /**
-     * Gets the active colour forced by a wild card.
-     *
-     * @return The forced colour if a wild effect is active, otherwise null
-     */
-    public Card.colortype getForcedColour() {
-        return forcedColour;
-    }
-
-    /**
-     * Checks whethehr the game has ended.
+     * Checks whether the game has ended.
      *
      * @return true if the game is over, otherwise false
      */

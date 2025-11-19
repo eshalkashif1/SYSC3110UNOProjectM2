@@ -8,7 +8,7 @@ import java.util.ArrayList;
  * Implements the View component of MVC architecture
  *
  * @author Eshal Kashif
- * @version 2.0
+ * @version 2.1
  */
 
 public class UnoFlipFrame extends JFrame implements UnoFlipView {
@@ -203,13 +203,13 @@ public class UnoFlipFrame extends JFrame implements UnoFlipView {
     @Override
     //public void update() {
     public void update(UnoFlipEvent event) {
-        updateTopCard();
-        updateCurrentPlayer();
-        updatePlayerHand();
+        updateTopCard(event);
+        updateCurrentPlayer(event);
+        updatePlayerHand(event);
         updateScoreboard();
 
         // Check if game is over
-        if (model.isGameOver()) {
+        if (event.isGameOver()) {
             drawCardButton.setEnabled(false);
             nextPlayerButton.setEnabled(false);
         }
@@ -256,11 +256,13 @@ public class UnoFlipFrame extends JFrame implements UnoFlipView {
     /**
      * Updates the top card display
      */
-    private void updateTopCard() {
-        Card topCard = model.getTopCard();
+    private void updateTopCard(UnoFlipEvent event) {
+       // Card topCard = model.getTopCard();
+        Card topCard = event.getTopCard();
         if (topCard != null) {
             String displayText;
-            Card.colortype forcedColour = model.getForcedColour();
+            //Card.colortype forcedColour = model.getForcedColour();
+            Card.colortype forcedColour = event.getForcedColour();
             if (forcedColour != null) {
                 displayText = forcedColour + " (from WILD)";
             } else {
@@ -274,8 +276,9 @@ public class UnoFlipFrame extends JFrame implements UnoFlipView {
     /**
      * Updates current player display
      */
-    private void updateCurrentPlayer() {
-        Player currentPlayer = model.getCurrentPlayer();
+    private void updateCurrentPlayer(UnoFlipEvent event) {
+        //Player currentPlayer = model.getCurrentPlayer();
+        Player currentPlayer = event.getCurrentPlayer();
         if (currentPlayer != null) {
             currentPlayerLabel.setText("Current Player: " + currentPlayer.getName());
         }
@@ -284,9 +287,10 @@ public class UnoFlipFrame extends JFrame implements UnoFlipView {
     /**
      * Updates the player's hand display
      */
-    public void updatePlayerHand() {
+    public void updatePlayerHand(UnoFlipEvent event) {
         playerHandPanel.removeAll();
-        Player currentPlayer = model.getCurrentPlayer();
+        //Player currentPlayer = model.getCurrentPlayer();
+        Player currentPlayer = event.getCurrentPlayer();
         if (currentPlayer != null) {
             List<Card> hand = currentPlayer.getHand();
 

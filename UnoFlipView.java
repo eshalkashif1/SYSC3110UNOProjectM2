@@ -5,7 +5,7 @@ import java.util.EventListener;
  * Defines the contract for views that observe the UnoFlipModel
  *
  * @author Eshal Kashif
- * @version 2.0
+ * @version 2.1
  *
  */
 public interface UnoFlipView extends EventListener {
@@ -13,6 +13,8 @@ public interface UnoFlipView extends EventListener {
     /**
      * Called when the model changes state
      * Views should update their display to reflect current game state
+     *
+     * @param event the UnoFlipEvent describing the update
      */
     void update(UnoFlipEvent event);
 
