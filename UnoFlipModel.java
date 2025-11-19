@@ -72,9 +72,19 @@ public class UnoFlipModel {
     /**
      * Notifies all subscribed views to update that the model state has changed.
      */
+  //  private void notifyViews(){
+    //    for(UnoFlipView view : this.views){
+     //       view.update();
+    //    }
+   // }
+
     private void notifyViews(){
-        for(UnoFlipView view : this.views){
-            view.update();
+        // Build an event object describing the new state
+        UnoFlipEvent event = new UnoFlipEvent(this, roundOver, gameOver, players.isEmpty() ? null : getCurrentPlayer(), deck == null ? null : getTopCard(), forcedColour);
+
+        // Notify all registered views (listeners)
+        for (UnoFlipView view : this.views){
+            view.update(event);
         }
     }
 

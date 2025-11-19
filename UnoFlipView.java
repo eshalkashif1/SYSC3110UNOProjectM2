@@ -1,3 +1,5 @@
+import java.util.EventListener;
+
 /**
  * UnoFlipView Interface
  * Defines the contract for views that observe the UnoFlipModel
@@ -6,13 +8,13 @@
  * @version 2.0
  *
  */
-public interface UnoFlipView {
+public interface UnoFlipView extends EventListener {
 
     /**
      * Called when the model changes state
      * Views should update their display to reflect current game state
      */
-    void update();
+    void update(UnoFlipEvent event);
 
     /**
      * Called when the model wants to display a message

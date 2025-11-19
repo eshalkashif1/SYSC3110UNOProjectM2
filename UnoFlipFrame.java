@@ -201,7 +201,8 @@ public class UnoFlipFrame extends JFrame implements UnoFlipView {
      * Called by the model when state changes
      */
     @Override
-    public void update() {
+    //public void update() {
+    public void update(UnoFlipEvent event) {
         updateTopCard();
         updateCurrentPlayer();
         updatePlayerHand();
